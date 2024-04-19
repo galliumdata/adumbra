@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>steganosaurus</groupId>
+    <groupId>com.galliumdata.steganosaurus</groupId>
     <artifactId>steganosaurus</artifactId>
     <version>0.8</version>
 
@@ -23,6 +23,7 @@
                 <configuration>
                     <archive>
                         <manifest>
+                            <packageName>com.galliumdata.stegano</packageName>
                             <mainClass>com.galliumdata.stegano.Main</mainClass>
                         </manifest>
                     </archive>

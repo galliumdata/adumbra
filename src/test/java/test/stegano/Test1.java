@@ -14,7 +14,9 @@ public class Test1 {
 
     private static final String RES_DIR = "/Users/maxtardiveau/IdeaProjects/steganosaurus/src/test/java/resources";
     private static final String ORIGINAL_FILE_1 = RES_DIR + "/Mexico1.png";
-    private static final String MODIFIED_FILE_1 = "/Users/maxtardiveau/Desktop/Mexico3_modif.png";
+    private static final String MODIFIED_FILE_1 = "/tmp/Mexico3_modif.png";
+    private static final String ORIGINAL_FILE_2 = RES_DIR + "/owl.jpeg";
+    private static final String MODIFIED_FILE_2 = "/tmp/owl2.jpeg";
     private static final String KEY = "This is the key";
     private static final byte[] MESSAGE_BYTES = "This is a test".getBytes(StandardCharsets.UTF_8);
 

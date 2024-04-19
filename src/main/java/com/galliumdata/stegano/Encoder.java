@@ -1,12 +1,15 @@
 package com.galliumdata.stegano;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Iterator;
 
 /**
  * Encoding a message into a bitmap.
@@ -26,9 +29,29 @@ public class Encoder {
         boolean originalHeadless = GraphicsEnvironment.isHeadless();
         System.setProperty("java.awt.headless", "true");
 
+        // If no format specified, determine from the image
+        if (format == null) {
+            ImageInputStream input = ImageIO.createImageInputStream(inStream);
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+            if (readers.hasNext()) {
+                ImageReader reader = readers.next();
+                reader.setInput(input);
+                reader.read(0);  // Read the same image as ImageIO.read
+                format = reader.getFormatName();
+            } else {
+                throw new RuntimeException("Unable to determine file format");
+            }
+        }
+        if ( ! "png".equalsIgnoreCase(format) && ! "tiff".equalsIgnoreCase(format)) {
+            throw new RuntimeException("Unsupported output file format: " + format);
+        }
+
         SecureRandom rand = SecureRandom.getInstanceStrong();
 
         BufferedImage img = ImageIO.read(inStream);
+        if (img == null) {
+            throw new RuntimeException("Unable to read input bitmap");
+        }
         int width = img.getWidth();
         int height = img.getHeight();
 
@@ -111,7 +134,66 @@ public class Encoder {
         }
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(img, format, os);
+
+        if ("png".equalsIgnoreCase(format)) {
+            ImageIO.write(img, format, os);
+        }
+        else if ("jpeg".equalsIgnoreCase(format)) {
+
+            if (img.getColorModel().hasAlpha()) {
+                BufferedImage target = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics2D g = target.createGraphics();
+                g.fillRect(0, 0, img.getWidth(), img.getHeight());
+                g.drawImage(img, 0, 0, null);
+                g.dispose();
+                img = target;
+            }
+
+            Iterator<ImageWriter> imageWriters = ImageIO.getImageWritersByFormatName(format);
+            ImageWriter writer = imageWriters.next();
+            ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+            writer.setOutput(ios);
+            ImageWriteParam writeParam = writer.getDefaultWriteParam();
+            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            String[] compTypes = writeParam.getCompressionTypes();
+            writeParam.setCompressionType("JPEG");
+            writeParam.setCompressionQuality(1.0f);
+            writer.prepareWriteSequence(null);
+            writer.write(img);
+            ImageTypeSpecifier spec = ImageTypeSpecifier.createFromRenderedImage(img);
+            javax.imageio.metadata.IIOMetadata metadata = writer.getDefaultImageMetadata(spec, writeParam);
+            IIOImage iioImage = new IIOImage(img, null, metadata);
+            writer.writeToSequence(iioImage, writeParam);
+            img.flush();
+            writer.endWriteSequence();
+            writer.dispose();
+            os.close();
+        }
+        else if ("tiff".equalsIgnoreCase(format)) {
+            ImageIO.write(img, format, os);
+//            Iterator<ImageWriter> imageWriters = ImageIO.getImageWritersByFormatName(format);
+//            ImageWriter writer = imageWriters.next();
+//            ImageOutputStream ios = ImageIO.createImageOutputStream(os);
+//            writer.setOutput(ios);
+//            ImageWriteParam writeParam = writer.getDefaultWriteParam();
+//            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//            String[] compTypes = writeParam.getCompressionTypes();
+//            writeParam.setCompressionType("LZW");
+//            writeParam.setCompressionQuality(1.0f);
+//            writer.prepareWriteSequence(null);
+//            writer.write(img);
+//            ImageTypeSpecifier spec = ImageTypeSpecifier.createFromRenderedImage(img);
+//            javax.imageio.metadata.IIOMetadata metadata = writer.getDefaultImageMetadata(spec, writeParam);
+//            IIOImage iioImage = new IIOImage(img, null, metadata);
+//            writer.writeToSequence(iioImage, writeParam);
+//            img.flush();
+//            writer.endWriteSequence();
+//            writer.dispose();
+//            os.close();
+        }
+        else if ("wbmp".equalsIgnoreCase(format)) {
+            ImageIO.write(img, format, os);
+        }
 
         outStream.write(os.toByteArray());
         outStream.close();
