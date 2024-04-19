@@ -4,7 +4,7 @@ A Java library that uses
 to hide data in bitmaps using a secret key. 
 Supported input formats include PNG, JPEG, TIFF, BMP.
 Output formats are PNG and TIFF only, because other
-formats are lossy and therefore cannot be used for
+formats are lossy and therefore suboptimal for
 steganography.
 
 Steganosaurus requires a bitmap with about 500 pixels
@@ -16,7 +16,7 @@ Steganosaurus is intended to be used as more of a way
 to mark bitmaps in a non-obvious way, rather than as 
 an efficient way to transmit large amounts of secret data.
 
-##How does it work?
+## How does it work?
 Steganosaurus hides a secret message in a bitmap by distributing
 the message's bits into the least significant bit of some pixels,
 using one color per pixel (R, G or B) in a random pattern
@@ -37,7 +37,7 @@ they still would not be able to decode the secret message
 without the secret key because they could not determine
 if a changed bit belongs to the secret message or is just noise.
 
-##How secure is it?
+## How secure is it?
 This library has not been reviewed by cryptography experts,
 so you should exercise common sense -- do not rely on it
 to hide national security secrets.
@@ -64,7 +64,7 @@ Even if they did, they would then have to decrypt the message,
 which is encoded using a SHA-512 hash of the secret key.
 
 ## Command line usage
-###Encoding a message in a bitmap
+### Encoding a message in a bitmap
 ```
 java -jar steganosaurus-<version>.jar encode \
     <input-file> \
@@ -85,7 +85,7 @@ If not specified, the format of the input file will be used,
 but only PNG and TIFF are allowed because other formats
 are lossy.
 
-###Example
+### Example
 Encode a message into a bitmap file:
 ```
 java -jar steganosaurus-0.8.jar encode MyImage.png Output.jpeg \
@@ -119,7 +119,7 @@ String key = "This is the secret key";
 encoder.encode(inStr, outStr,  "jpg", message, key);
 outStr.close();
 ```
-#About the author
+# About the author
 Steganosaurus was developed while working on 
 [Gallium Data](https://www.galliumdata.com)
 to allow invisible watermarking of bitmaps stored in databases.
