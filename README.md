@@ -19,7 +19,7 @@ an efficient way to transmit large amounts of secret data.
 ## How does it work?
 Steganosaurus hides a secret message in a bitmap by distributing
 the message's bits into the least significant bit of some pixels,
-using one color per pixel (R, G or B) in a random pattern
+using one color per pixel (R, G or B) in a pattern
 determined by the secret key.
 
 Before being encoded into the bitmap, the message is 
@@ -91,14 +91,14 @@ Encode a message into a bitmap file:
 java -jar steganosaurus-0.8.jar encode MyImage.png Output.jpeg \
 "My secret message" "My secret key" jpeg
 ```
-Extract a secret message from a bitmap file:
+## Extract a secret message from a bitmap file:
 ```
 java -jar steganosaurus-0.8.jar decode Output.png \
 "My secret key"
 ```
 Output:
 ```
-Secret message is: My secret message
+Hidden message: My secret message
 ```
 
 ## Library usage
@@ -110,16 +110,27 @@ Maven:
     <version>0.8</version>
 </dependency>
 ```
+### Encoding in Java
 ```
 Encoder encoder = new Encoder();
 FileInputStream inStr = new FileInputStream("MyImage.jpg"");
-FileOutputStream outStr = new FileOutputStream("ModifImage.jpg");
+FileOutputStream outStr = new FileOutputStream("ModifImage.png");
 byte[] message = "This is the message".getBytes(StandardCharsets.UTF_8);
 String key = "This is the secret key";
-encoder.encode(inStr, outStr,  "jpg", message, key);
+encoder.encode(inStr, outStr,  "png", message, key);
 outStr.close();
 ```
+
+### Decoding in Java
+```
+Decoder decoder = new Decoder();
+FileInputStream inStr = new FileInputStream("ModifImage.png");
+byte[] decoded = decoder.decode(inStr, "This is the secret key");
+System.out.println(new String(decoded));
+```
+
 # About the author
 Steganosaurus was developed while working on 
 [Gallium Data](https://www.galliumdata.com)
 to allow invisible watermarking of bitmaps stored in databases.
+It is open source with an Apache 2.0 license.

@@ -38,10 +38,10 @@ public class Main {
             String key = args[2];
             Decoder decoder = new Decoder();
             byte[] message = decoder.decode(inStr, key);
-            System.out.println("Secret message is: " + new String(message, StandardCharsets.UTF_8));
+            System.out.println("Hidden message: " + new String(message, StandardCharsets.UTF_8));
         }
         else {
-            throw new RuntimeException("First argument must be \"encode\" or \"decode\"");
+            throw new RuntimeException("First argument must be either \"encode\" or \"decode\"");
         }
     }
 }
