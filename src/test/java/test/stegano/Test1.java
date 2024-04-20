@@ -2,7 +2,7 @@ package test.stegano;
 
 import org.junit.Test;
 
-import com.galliumdata.stegano.*;
+import com.galliumdata.adumbra.*;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

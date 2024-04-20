@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/steganosaurus.iml" filepath="$PROJECT_DIR$/steganosaurus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/adumbra.iml" filepath="$PROJECT_DIR$/adumbra.iml" />
     </modules>
   </component>
 </project>

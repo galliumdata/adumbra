@@ -1,4 +1,4 @@
-package com.galliumdata.stegano;
+package com.galliumdata.adumbra;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

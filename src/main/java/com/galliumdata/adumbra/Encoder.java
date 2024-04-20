@@ -1,8 +1,7 @@
-package com.galliumdata.stegano;
+package com.galliumdata.adumbra;
 
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -54,6 +53,8 @@ public class Encoder {
         }
         int width = img.getWidth();
         int height = img.getHeight();
+        byte[] randBytes = new byte[width * height];
+        rand.nextBytes(randBytes);
 
         byte[] markBytes = new byte[2 + msg.length];
         System.arraycopy(msg, 0, markBytes, 2, msg.length);
@@ -121,8 +122,9 @@ public class Encoder {
             }
             else {
                 // Random bit flip
-                int randomBit = rand.nextInt(2);
-                int randomBitShift = rand.nextInt(3) * 8;
+                byte randByte = randBytes[i];
+                int randomBit = randByte & 0x01;
+                int randomBitShift = (((randByte & 0xFE) >> 1) % 3) * 8;
                 if (randomBit == 0) {
                     pixelVal &= ~(1 << randomBitShift);
                 }
@@ -134,67 +136,7 @@ public class Encoder {
         }
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        if ("png".equalsIgnoreCase(format)) {
-            ImageIO.write(img, format, os);
-        }
-        else if ("jpeg".equalsIgnoreCase(format)) {
-
-            if (img.getColorModel().hasAlpha()) {
-                BufferedImage target = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_RGB);
-                Graphics2D g = target.createGraphics();
-                g.fillRect(0, 0, img.getWidth(), img.getHeight());
-                g.drawImage(img, 0, 0, null);
-                g.dispose();
-                img = target;
-            }
-
-            Iterator<ImageWriter> imageWriters = ImageIO.getImageWritersByFormatName(format);
-            ImageWriter writer = imageWriters.next();
-            ImageOutputStream ios = ImageIO.createImageOutputStream(os);
-            writer.setOutput(ios);
-            ImageWriteParam writeParam = writer.getDefaultWriteParam();
-            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            String[] compTypes = writeParam.getCompressionTypes();
-            writeParam.setCompressionType("JPEG");
-            writeParam.setCompressionQuality(1.0f);
-            writer.prepareWriteSequence(null);
-            writer.write(img);
-            ImageTypeSpecifier spec = ImageTypeSpecifier.createFromRenderedImage(img);
-            javax.imageio.metadata.IIOMetadata metadata = writer.getDefaultImageMetadata(spec, writeParam);
-            IIOImage iioImage = new IIOImage(img, null, metadata);
-            writer.writeToSequence(iioImage, writeParam);
-            img.flush();
-            writer.endWriteSequence();
-            writer.dispose();
-            os.close();
-        }
-        else if ("tiff".equalsIgnoreCase(format)) {
-            ImageIO.write(img, format, os);
-//            Iterator<ImageWriter> imageWriters = ImageIO.getImageWritersByFormatName(format);
-//            ImageWriter writer = imageWriters.next();
-//            ImageOutputStream ios = ImageIO.createImageOutputStream(os);
-//            writer.setOutput(ios);
-//            ImageWriteParam writeParam = writer.getDefaultWriteParam();
-//            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-//            String[] compTypes = writeParam.getCompressionTypes();
-//            writeParam.setCompressionType("LZW");
-//            writeParam.setCompressionQuality(1.0f);
-//            writer.prepareWriteSequence(null);
-//            writer.write(img);
-//            ImageTypeSpecifier spec = ImageTypeSpecifier.createFromRenderedImage(img);
-//            javax.imageio.metadata.IIOMetadata metadata = writer.getDefaultImageMetadata(spec, writeParam);
-//            IIOImage iioImage = new IIOImage(img, null, metadata);
-//            writer.writeToSequence(iioImage, writeParam);
-//            img.flush();
-//            writer.endWriteSequence();
-//            writer.dispose();
-//            os.close();
-        }
-        else if ("wbmp".equalsIgnoreCase(format)) {
-            ImageIO.write(img, format, os);
-        }
-
+        ImageIO.write(img, format, os);
         outStream.write(os.toByteArray());
         outStream.close();
 

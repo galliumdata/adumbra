@@ -1,23 +1,22 @@
-# The Steganosaurus library
-A Java library that uses
+# The Adumbra library
+A light-weight Java library that uses
 [steganography](https://en.wikipedia.org/wiki/Steganography)
 to hide data in bitmaps using a secret key. 
 Supported input formats include PNG, JPEG, TIFF, BMP.
 Output formats are PNG and TIFF only, because other
-formats are lossy and therefore suboptimal for
-steganography.
+formats are lossy and therefore more difficult to support.
 
-Steganosaurus requires a bitmap with about 500 pixels
+Adumbra requires a bitmap with about 500 pixels
 for every byte of the secret message, so a bitmap of
 500x700 pixels could contain a secret message 
 of up to about 700 bytes.
 
-Steganosaurus is intended to be used as more of a way
+Adumbra is intended to be used as more of a way
 to mark bitmaps in a non-obvious way, rather than as 
 an efficient way to transmit large amounts of secret data.
 
 ## How does it work?
-Steganosaurus hides a secret message in a bitmap by distributing
+Adumbra hides a secret message in a bitmap by distributing
 the message's bits into the least significant bit of some pixels,
 using one color per pixel (R, G or B) in a pattern
 determined by the secret key.
@@ -27,7 +26,7 @@ encrypted using a secure hash of the secret key,
 and the bits are distributed into the bitmap using 
 the hash.
 
-Steganosaurus also randomizes all the least significant bits 
+Adumbra also randomizes all the least significant bits 
 of other pixels to make it more difficult to determine 
 whether the bitmap contains a secret message, and 
 how long that message may be.
@@ -66,7 +65,7 @@ which is encoded using a SHA-512 hash of the secret key.
 ## Command line usage
 ### Encoding a message in a bitmap
 ```
-java -jar steganosaurus-<version>.jar encode \
+java -jar adumbra-<version>.jar encode \
     <input-file> \
     <output-file> \
     <message> \
@@ -88,12 +87,12 @@ are lossy.
 ### Example
 Encode a message into a bitmap file:
 ```
-java -jar steganosaurus-0.8.jar encode MyImage.png Output.jpeg \
-"My secret message" "My secret key" jpeg
+java -jar adumbra-0.8.jar encode MyImage.jpeg Output.png \
+    "My secret message" "My secret key" png
 ```
 ## Extract a secret message from a bitmap file:
 ```
-java -jar steganosaurus-0.8.jar decode Output.png \
+java -jar adumbra-0.8.jar decode Output.png \
 "My secret key"
 ```
 Output:
@@ -102,11 +101,13 @@ Hidden message: My secret message
 ```
 
 ## Library usage
-Maven:
+This is a stand-alone library, it has no dependencies.
+
+### Maven:
 ```
 <dependency>
-    <groupId>com.galliumdata.steganosaurus</groupId>
-    <artifactId>steganosaurus</artifactId>
+    <groupId>com.galliumdata.adumbra</groupId>
+    <artifactId>adumbra</artifactId>
     <version>0.8</version>
 </dependency>
 ```
@@ -119,6 +120,7 @@ byte[] message = "This is the message".getBytes(StandardCharsets.UTF_8);
 String key = "This is the secret key";
 encoder.encode(inStr, outStr,  "png", message, key);
 outStr.close();
+// Result is in file ModifImage.png
 ```
 
 ### Decoding in Java
@@ -130,7 +132,7 @@ System.out.println(new String(decoded));
 ```
 
 # About the author
-Steganosaurus was developed while working on 
+Adumbra was developed while working on 
 [Gallium Data](https://www.galliumdata.com)
 to allow invisible watermarking of bitmaps stored in databases.
 It is open source with an Apache 2.0 license.

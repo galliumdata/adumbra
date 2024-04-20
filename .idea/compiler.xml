@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="steganosaurus" />
+        <module name="adumbra" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="steganosaurus" target="11" />
+      <module name="adumbra" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
