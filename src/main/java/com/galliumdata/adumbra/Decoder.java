@@ -1,48 +1,36 @@
 package com.galliumdata.adumbra;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 /**
  * Extract the data hidden in a bitmap.
  */
 public class Decoder {
-    public byte[] decode(InputStream inStream, String keyPhrase) throws Exception {
+    public byte[] decode(InputStream inStream, byte[] keyBytes) throws Exception {
         boolean originalHeadless = GraphicsEnvironment.isHeadless();
         System.setProperty("java.awt.headless", "true");
 
-        BufferedImage img = ImageIO.read(inStream);
-        int width = img.getWidth();
-        int height = img.getHeight();
+        ImageBitmap bitmap = new ImageBitmap();
+        bitmap.readImage(inStream);
 
         // Hash the key
         MessageDigest digest = MessageDigest.getInstance("SHA-512");
-        byte[] key = digest.digest(keyPhrase.getBytes(StandardCharsets.UTF_8));
+        byte[] key = digest.digest(keyBytes);
 
         int keyIdx = 0;
         int pixelIdx = Byte.toUnsignedInt(key[keyIdx]) / 4;
         int bitIdx = 0;
         byte currentByte = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (int i = 0; i < width * height; i++) {
+        for (int i = 0; i < bitmap.width * bitmap.height; i++) {
             if (i == pixelIdx) {
-                int pixelVal = img.getRGB(i % width, i / width);
-
-                int bitShift = 0;
                 int keyByte = Byte.toUnsignedInt(key[keyIdx % key.length]);
-                if (keyByte > 85) {
-                    bitShift = 8;
-                }
-                if (keyByte > 170) {
-                    bitShift = 16;
-                }
-                int bit = pixelVal & (1 << bitShift);
-                bit >>= bitShift;
+                byte pixelByte = bitmap.getPixelByte(i, keyByte/0x56);
+
+                int bit = pixelByte & 1;
                 currentByte |= bit << bitIdx;
 
                 bitIdx++;
@@ -66,7 +54,8 @@ public class Decoder {
         }
 
         int numBytes = (msgBytes[0] << 8) + msgBytes[1];
-        if (numBytes < 0 || numBytes > (width * height)/800) {
+        if (numBytes < 0 || numBytes > (bitmap.width * bitmap.height)/400) {
+            // This should catch most garbled values
             throw new RuntimeException("Invalid message size");
         }
         byte[] actualBytes = new byte[numBytes];

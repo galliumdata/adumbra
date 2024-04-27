@@ -27,7 +27,7 @@ public class Main {
             String key = args[4];
             Encoder encoder = new Encoder();
             FileInputStream inStr = new FileInputStream(args[1]);
-            encoder.encode(inStr, fos,  format, message.getBytes(StandardCharsets.UTF_8), key);
+            encoder.encode(inStr, fos,  format, message.getBytes(StandardCharsets.UTF_8), key.getBytes(StandardCharsets.UTF_8));
             fos.close();
         }
         else if ("decode".equals(arg0)) {
@@ -37,7 +37,7 @@ public class Main {
             FileInputStream inStr = new FileInputStream(args[1]);
             String key = args[2];
             Decoder decoder = new Decoder();
-            byte[] message = decoder.decode(inStr, key);
+            byte[] message = decoder.decode(inStr, key.getBytes(StandardCharsets.UTF_8));
             System.out.println("Hidden message: " + new String(message, StandardCharsets.UTF_8));
         }
         else {

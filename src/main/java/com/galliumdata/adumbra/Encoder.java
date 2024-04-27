@@ -1,14 +1,10 @@
 package com.galliumdata.adumbra;
 
 import javax.imageio.*;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Iterator;
 
 /**
  * Encoding a message into a bitmap.
@@ -16,96 +12,74 @@ import java.util.Iterator;
 public class Encoder {
     /**
      * Encode a message steganographically into a bitmap, using a key.
-     * The key is hashed into a 64-byte buffer.
+     * The key is hashed into a 64-byte buffer and used to encode the message
+     * and to distribute its bits into the bitmap.
      * @param inStream The original bitmap
      * @param outStream Where to write the result
-     * @param format The output format, can be png
+     * @param outputFormat The output format, can be png or tiff
      * @param msg The message to be written into the bitmap, should be at most 200 times smaller than
      *            the number of pixels in the image.
-     * @param keyPhrase The key to use
+     * @param rawKey The key to use
      */
-    public void encode(InputStream inStream, OutputStream outStream, String format, byte[] msg, String keyPhrase) throws Exception {
+    public void encode(InputStream inStream, OutputStream outStream, String outputFormat, byte[] msg, byte[] rawKey) throws Exception {
         boolean originalHeadless = GraphicsEnvironment.isHeadless();
         System.setProperty("java.awt.headless", "true");
 
-        // If no format specified, determine from the image
-        if (format == null) {
-            ImageInputStream input = ImageIO.createImageInputStream(inStream);
-            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
-            if (readers.hasNext()) {
-                ImageReader reader = readers.next();
-                reader.setInput(input);
-                reader.read(0);  // Read the same image as ImageIO.read
-                format = reader.getFormatName();
-            } else {
-                throw new RuntimeException("Unable to determine file format");
-            }
-        }
-        if ( ! "png".equalsIgnoreCase(format) && ! "tiff".equalsIgnoreCase(format)) {
-            throw new RuntimeException("Unsupported output file format: " + format);
-        }
+        ImageBitmap bitmap = new ImageBitmap();
+        bitmap.readImage(inStream);
 
+        // Get all the randomness we'll need, since getting this one byte at a time is very expensive.
         SecureRandom rand = SecureRandom.getInstanceStrong();
-
-        BufferedImage img = ImageIO.read(inStream);
-        if (img == null) {
-            throw new RuntimeException("Unable to read input bitmap");
+        int numRandom = bitmap.width * bitmap.height;
+        if (numRandom > 10_007) {
+            // Getting millions of random bytes is expensive
+            numRandom = 10_007;
         }
-        int width = img.getWidth();
-        int height = img.getHeight();
-        byte[] randBytes = new byte[width * height];
+        byte[] randBytes = new byte[numRandom];
         rand.nextBytes(randBytes);
 
-        byte[] markBytes = new byte[2 + msg.length];
-        System.arraycopy(msg, 0, markBytes, 2, msg.length);
-        markBytes[0] = (byte)(msg.length >> 8);
-        markBytes[1] = (byte)msg.length;
+        // Copy the message
+        byte[] msgBytes = new byte[2 + msg.length];
+        System.arraycopy(msg, 0, msgBytes, 2, msg.length);
+        msgBytes[0] = (byte)(msg.length >> 8);
+        msgBytes[1] = (byte)msg.length;
 
         // Hash the key
         MessageDigest digest = MessageDigest.getInstance("SHA-512");
-        byte[] key = digest.digest(keyPhrase.getBytes(StandardCharsets.UTF_8));
+        byte[] key = digest.digest(rawKey);
 
         // Verify that the data will fit
         int total = 0;
-        for (int i = 0; i < markBytes.length * 8; i++) {
+        for (int i = 0; i < msgBytes.length * 8; i++) {
                 total += Byte.toUnsignedInt(key[i % key.length]) / 4;
         }
-        if (total >= (width * height)) {
+        if (total >= (bitmap.width * bitmap.height)) {
             throw new RuntimeException("Image is not large enough to hold this data -- need at least " + total + " pixels");
         }
 
         // Add the hashed key to the message to randomize it
-        for (int i = 0; i < markBytes.length; i++) {
-            markBytes[i] += key[i % key.length];
+        for (int i = 0; i < msgBytes.length; i++) {
+            msgBytes[i] += key[i % key.length];
         }
 
-        // We flip every pixel randomly, except the ones that contain our data.
         // For each pixel, we flip R, G or B randomly for random bits, or based
         // on key value for data bits
         int keyIdx = 0;
         int pixelIdx = Byte.toUnsignedInt(key[keyIdx]) / 4;
         int markIdx = 0;
         int bitIdx = 0;
-        for (int i = 0; i < width * height; i++) {
-            int pixelVal = img.getRGB(i % width, i / width);
-            if (markIdx < markBytes.length && i == pixelIdx) {
+        for (int i = 0; i < bitmap.width * bitmap.height; i++) {
+            int keyByte = Byte.toUnsignedInt(key[keyIdx % key.length]);
+            byte pixelByte = bitmap.getPixelByte(i, keyByte/0x56);
+            if (markIdx < msgBytes.length && i == pixelIdx) {
                 // Contains a bit
-                int bitShift = 0;
-                int keyByte = Byte.toUnsignedInt(key[keyIdx % key.length]);
-                if (keyByte > 85) {
-                    bitShift = 8;
-                }
-                if (keyByte > 170) {
-                    bitShift = 16;
-                }
-
-                byte markByte = markBytes[markIdx];
+                byte markByte = msgBytes[markIdx];
                 int bit = (markByte >> bitIdx) & 0x01;
                 if (bit == 0) {
-                    pixelVal &= ~(1 << bitShift);
+                    pixelByte &= ~1;
                 }
                 else {
-                    pixelVal |= (bit << bitShift);
+                    pixelByte |= 1;
                 }
 
                 bitIdx++;
@@ -122,21 +96,23 @@ public class Encoder {
             }
             else {
                 // Random bit flip
-                byte randByte = randBytes[i];
-                int randomBit = randByte & 0x01;
-                int randomBitShift = (((randByte & 0xFE) >> 1) % 3) * 8;
+                byte randByte = randBytes[i % numRandom];
+                int randomBit = randByte & (0x01 << (keyByte % 8));
                 if (randomBit == 0) {
-                    pixelVal &= ~(1 << randomBitShift);
+                    pixelByte &= ~1;
                 }
                 else {
-                    pixelVal |= randomBit << randomBitShift;
+                    pixelByte |= 1;
                 }
             }
-            img.setRGB(i % width, i / width, pixelVal);
+
+            bitmap.setPixelByte(i, keyByte/0x56, pixelByte);
         }
 
+        bitmap.image.setData(bitmap.raster);
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(img, format, os);
+        ImageIO.write(bitmap.image, outputFormat, os);
         outStream.write(os.toByteArray());
         outStream.close();
 

@@ -9,7 +9,8 @@ formats are lossy and therefore more difficult to support.
 Adumbra requires a bitmap with about 500 pixels
 for every byte of the secret message, so a bitmap of
 500x700 pixels could contain a secret message 
-of up to about 700 bytes.
+of up to about 700 bytes. The maximum size of the secret
+message is 32K bytes.
 
 Adumbra is intended to be used as more of a way
 to mark bitmaps in a non-obvious way, rather than as 
