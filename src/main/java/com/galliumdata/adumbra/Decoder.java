@@ -24,6 +24,8 @@ public class Decoder {
         int pixelIdx = Byte.toUnsignedInt(key[keyIdx]) / 4;
         int bitIdx = 0;
         byte currentByte = 0;
+        int numRead = 0;
+        int numBytes = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         for (int i = 0; i < bitmap.width * bitmap.height; i++) {
             if (i == pixelIdx) {
@@ -36,6 +38,13 @@ public class Decoder {
                 bitIdx++;
                 if (bitIdx >= 8) {
                     baos.write(currentByte);
+                    if (numRead == 0) {
+                        numBytes = (currentByte - key[0]) << 8;
+                    }
+                    else if (numRead == 1) {
+                        numBytes |= (currentByte - key[1]);
+                    }
+                    numRead++;
                     bitIdx = 0;
                     currentByte = 0;
                 }
@@ -45,6 +54,10 @@ public class Decoder {
                     keyIdxIncrement = 1;
                 }
                 pixelIdx += keyIdxIncrement;
+
+                if (numBytes > 0 && numRead >= numBytes + 2) {
+                    break;
+                }
             }
         }
 
@@ -53,7 +66,6 @@ public class Decoder {
             msgBytes[i] -= key[i % key.length];
         }
 
-        int numBytes = (msgBytes[0] << 8) + msgBytes[1];
         if (numBytes < 0 || numBytes > (bitmap.width * bitmap.height)/400) {
             // This should catch most garbled values
             throw new RuntimeException("Invalid message size");

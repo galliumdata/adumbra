@@ -38,6 +38,9 @@ public class ImageBitmap {
         ImageReader imageReader = readers.next();
         imageReader.setInput(imageInputStr);
         image = imageReader.read(0);
+        if (image == null) {
+            throw new RuntimeException("Unable to read input file");
+        }
         format = imageReader.getFormatName();
         width = image.getWidth();
         height = image.getHeight();

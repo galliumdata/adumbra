@@ -10,6 +10,15 @@ import java.security.SecureRandom;
  * Encoding a message into a bitmap.
  */
 public class Encoder {
+    private int secLevel;
+
+    /**
+     * Create a new Encoder with the given security level.
+     * @param secLevel One of: 0=minimum security, 1=moderate security, 2=maximum security
+     */
+    public Encoder(int secLevel) {
+        this.secLevel = secLevel;
+    }
     /**
      * Encode a message steganographically into a bitmap, using a key.
      * The key is hashed into a 64-byte buffer and used to encode the message
@@ -31,12 +40,15 @@ public class Encoder {
         // Get all the randomness we'll need, since getting this one byte at a time is very expensive.
         SecureRandom rand = SecureRandom.getInstanceStrong();
         int numRandom = bitmap.width * bitmap.height;
-        if (numRandom > 10_007) {
+        if (numRandom > 10_007 && secLevel < 2) {
             // Getting millions of random bytes is expensive
             numRandom = 10_007;
         }
-        byte[] randBytes = new byte[numRandom];
-        rand.nextBytes(randBytes);
+        byte[] randBytes = null;
+        if (secLevel > 0) {
+            randBytes = new byte[numRandom];
+            rand.nextBytes(randBytes);
+        }
 
         // Copy the message
         byte[] msgBytes = new byte[2 + msg.length];
@@ -94,7 +106,7 @@ public class Encoder {
                 }
                 pixelIdx += increment;
             }
-            else {
+            else if (randBytes != null && secLevel > 0) {
                 // Random bit flip
                 byte randByte = randBytes[i % numRandom];
                 int randomBit = randByte & (0x01 << (keyByte % 8));
@@ -107,6 +119,9 @@ public class Encoder {
             }
 
             bitmap.setPixelByte(i, keyByte/0x56, pixelByte);
+            if (markIdx >= msgBytes.length && randBytes == null) {
+                break;
+            }
         }
 
         bitmap.image.setData(bitmap.raster);

@@ -14,18 +14,28 @@ public class Main {
         String arg0 = args[0].toLowerCase().trim();
         if ("encode".equals(arg0)) {
             if (args.length < 5) {
-                throw new RuntimeException("Parameters for encode must be: encode <input-file> <output-file> <message> <key> [<format>]");
+                throw new RuntimeException("Parameters for encode must be: encode <input-file> <output-file> " +
+                        "<message> <key> [<format> [<sec-level>]]");
             }
 
             String format = null;
-            if (args.length == 6) {
+            if (args.length >= 6) {
                 format = args[5];
             }
 
+            int secLevel = 0;
+            if (args.length >= 7) {
+                try {
+                    secLevel = Integer.parseInt(args[6]);
+                }
+                catch(Exception ex) {
+                    throw new RuntimeException("Invalid value for parameter");
+                }
+            }
             FileOutputStream fos = new FileOutputStream(args[2]);
             String message = args[3];
             String key = args[4];
-            Encoder encoder = new Encoder();
+            Encoder encoder = new Encoder(secLevel);
             FileInputStream inStr = new FileInputStream(args[1]);
             encoder.encode(inStr, fos,  format, message.getBytes(StandardCharsets.UTF_8), key.getBytes(StandardCharsets.UTF_8));
             fos.close();

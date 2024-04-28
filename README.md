@@ -71,7 +71,7 @@ java -jar adumbra-<version>.jar encode \
     <output-file> \
     <message> \
     <key> \
-    [<format>]
+    [<format> [<secure-level>]]
 ```
 - `<input-file>`: a bitmap file. 
 Supported input formats are those supported by your Java platform,
@@ -84,6 +84,12 @@ with the hidden message
 If not specified, the format of the input file will be used,
 but only PNG and TIFF are allowed because other formats
 are lossy.
+- `<secure-level>`: optional, an integer between 0 and 2.
+Zero means minimum security, no noise is added to the image,
+which means, depending on the bitmap, it may be easy to
+detect that the image contains secret data. One adds some
+noise, but with some repetition. Two adds fully random noise,
+but is slower.
 
 ### Example
 Encode a message into a bitmap file:
