@@ -1,0 +1,3 @@
+Before running the Maven build:
+
+export GPG_TTY=$(tty)
