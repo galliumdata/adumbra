@@ -10,7 +10,7 @@ import java.security.SecureRandom;
  * Encoding a message into a bitmap.
  */
 public class Encoder {
-    private int secLevel;
+    private final int secLevel;
 
     /**
      * Create a new Encoder with the given security level.

@@ -89,7 +89,7 @@ Zero means minimum security, no noise is added to the image,
 which means, depending on the bitmap, it may be easy to
 detect that the image contains secret data. One adds some
 noise, but with some repetition. Two adds fully random noise,
-but is slower.
+but is somewhat slower.
 
 ### Example
 Encode a message into a bitmap file:
@@ -125,7 +125,7 @@ FileInputStream inStr = new FileInputStream("MyImage.jpg"");
 FileOutputStream outStr = new FileOutputStream("ModifImage.png");
 byte[] message = "This is the message".getBytes(StandardCharsets.UTF_8);
 String key = "This is the secret key";
-encoder.encode(inStr, outStr,  "png", message, key);
+encoder.encode(inStr, outStr,  "png", message, key, "png", 1);
 outStr.close();
 // Result is in file ModifImage.png
 ```
