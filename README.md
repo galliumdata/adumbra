@@ -27,7 +27,7 @@ encrypted using a secure hash of the secret key,
 and the bits are distributed into the bitmap using 
 the hash.
 
-Adumbra also randomizes all the least significant bits 
+Adumbra can also randomize the least significant bits 
 of other pixels to make it more difficult to determine 
 whether the bitmap contains a secret message, and 
 how long that message may be.

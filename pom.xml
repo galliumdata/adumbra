@@ -6,14 +6,14 @@
 
     <groupId>com.galliumdata.adumbra</groupId>
     <artifactId>adumbra</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8</version>
     <description>A simple library to hide data in bitmaps</description>
-    <url>https://github.com/galliumdata/${project.artifactId}</url>
+    <url>https://github.com/galliumdata/adumbra</url>
 
     <developers>
         <developer>
             <id>maxtardiveau</id>
-            <name>Gallium Data</name>
+            <name>Max Tardiveau</name>
             <email>max@galliumdata.com</email>
             <organization>Gallium Data</organization>
             <organizationUrl>https://www.galliumdata.com</organizationUrl>
@@ -66,8 +66,9 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -79,6 +80,7 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -92,10 +94,18 @@
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
-                        <phase>verify</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
+                        <configuration>
+                            <keyname>B31138603F054D55C73B39C3A359BC1318C188FA</keyname>
+                            <passphraseServerId>B31138603F054D55C73B39C3A359BC1318C188FA</passphraseServerId>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
