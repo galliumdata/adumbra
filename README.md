@@ -115,6 +115,8 @@ Hidden message: My secret message
 ## Library usage
 This is a stand-alone library, it has no dependencies.
 
+[Javadoc is here](https://javadoc.io/doc/com.galliumdata.adumbra/adumbra/latest/com/galliumdata/adumbra/package-summary.html)
+
 ### Maven:
 ```
 <dependency>
@@ -141,6 +143,7 @@ Decoder decoder = new Decoder();
 FileInputStream inStr = new FileInputStream("ModifImage.png");
 byte[] decoded = decoder.decode(inStr, "This is the secret key");
 System.out.println(new String(decoded));
+// Output: This is the message
 ```
 
 # About the author
