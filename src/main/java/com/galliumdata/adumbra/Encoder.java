@@ -106,7 +106,7 @@ public class Encoder {
                 }
                 pixelIdx += increment;
             }
-            else if (randBytes != null && secLevel > 0) {
+            else if (randBytes != null) {
                 // Random bit flip
                 byte randByte = randBytes[i % numRandom];
                 int randomBit = randByte & (0x01 << (keyByte % 8));

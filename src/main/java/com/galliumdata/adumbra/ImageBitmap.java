@@ -14,7 +14,6 @@ import java.util.Iterator;
 public class ImageBitmap {
 
     public BufferedImage image;
-    public int type;
     public WritableRaster raster;
     public String format;
     public int width;

@@ -1,5 +1,5 @@
 # The Adumbra library
-A light-weight Java library that uses
+Adumbra is a light-weight Java library that uses
 [steganography](https://en.wikipedia.org/wiki/Steganography)
 to hide data in bitmaps using a secret key. 
 Supported input formats include PNG, JPEG, TIFF, BMP.
@@ -23,21 +23,18 @@ using one color per pixel (R, G or B) in a pattern
 determined by the secret key.
 
 Before being encoded into the bitmap, the message is 
-encrypted using a secure hash of the secret key, 
-and the bits are distributed into the bitmap using 
-the hash.
+encrypted using a secure hash of the secret key.
 
 Adumbra can also randomize the least significant bits 
 of other pixels to make it more difficult to determine 
 whether the bitmap contains a secret message, and 
-how long that message may be.
-
-Therefore, even if someone had access to the original bitmap,
+how long that message may be. With that option,
+even if someone had access to the original bitmap,
 they still would not be able to decode the secret message
 without the secret key because they could not determine
 if a changed bit belongs to the secret message or is just noise.
 
-## How secure is it?
+## How secure is this?
 This library has not been reviewed by cryptography experts,
 so you should exercise common sense -- do not rely on it
 to hide national security secrets.
@@ -63,6 +60,12 @@ figure out which bits actually belong to the secret message.
 Even if they did, they would then have to decrypt the message,
 which is encoded using a SHA-512 hash of the secret key.
 
+## Removing the secret message
+Keep in mind that it is fairly easy to scramble a secret message
+hidden in a bitmap -- all you have to do is save the bitmap
+with a bit of compression. In most cases, that will make the
+secret message unrecognizable.
+
 ## Command line usage
 ### Encoding a message in a bitmap
 ```
@@ -82,25 +85,27 @@ with the hidden message
 - `<key>`: the secret key used to hide the message
 - `<format>`: optional, the format of the output file. 
 If not specified, the format of the input file will be used,
-but only PNG and TIFF are allowed because other formats
+but only "png" and "tiff" are allowed because other formats
 are lossy.
 - `<secure-level>`: optional, an integer between 0 and 2.
 Zero means minimum security, no noise is added to the image,
 which means, depending on the bitmap, it may be easy to
-detect that the image contains secret data. One adds some
-noise, but with some repetition. Two adds fully random noise,
-but is somewhat slower.
+detect that the image contains secret data, and how long that
+data is. One adds some noise, but with some repetition,
+making it much more difficult to determine that the bitmap 
+contains secret data. Two adds fully random noise, which is
+even more secure, but is somewhat slower.
 
 ### Example
 Encode a message into a bitmap file:
 ```
 java -jar adumbra-0.8.jar encode MyImage.jpeg Output.png \
-    "My secret message" "My secret key" png 1
+    "My secret message" "6buovMtowrAuNYw" png 1
 ```
 ## Extract a secret message from a bitmap file:
 ```
 java -jar adumbra-0.8.jar decode Output.png \
-"My secret key"
+"6buovMtowrAuNYw"
 ```
 Output:
 ```
@@ -121,7 +126,7 @@ This is a stand-alone library, it has no dependencies.
 ### Encoding in Java
 ```
 Encoder encoder = new Encoder(2);
-FileInputStream inStr = new FileInputStream("MyImage.jpg"");
+FileInputStream inStr = new FileInputStream("MyImage.jpg");
 FileOutputStream outStr = new FileOutputStream("ModifImage.png");
 byte[] message = "This is the message".getBytes(StandardCharsets.UTF_8);
 String key = "This is the secret key";
