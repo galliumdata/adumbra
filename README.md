@@ -99,7 +99,7 @@ even more secure, but is somewhat slower.
 ### Example
 Encode a message into a bitmap file:
 ```
-java -jar adumbra-0.8.jar encode MyImage.jpeg Output.png \
+java -jar adumbra-0.9.jar encode MyImage.jpeg Output.png \
     "My secret message" "6buovMtowrAuNYw" png 1
 ```
 ## Extract a secret message from a bitmap file:
@@ -122,7 +122,7 @@ This is a stand-alone library, it has no dependencies.
 <dependency>
     <groupId>com.galliumdata.adumbra</groupId>
     <artifactId>adumbra</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
 </dependency>
 ```
 ### Encoding in Java

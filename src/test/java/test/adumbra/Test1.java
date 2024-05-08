@@ -59,7 +59,7 @@ public class Test1 {
     }
 
     private void loadTestCases() {
-        int NUM = 0;
+        int NUM = 1;
         TestCase tc = new TestCase();
         tc.inFile = RES_DIR + "/Mexico1.png";
         tc.outFile = "/tmp/Mexico3_modif.png";
@@ -81,7 +81,7 @@ public class Test1 {
         tc.outFile = "/tmp/owl1_modif.png";
         tc.format = "png";
         tc.secLevel = 0;
-        tc.numReps = 10;
+        tc.numReps = NUM;
         testCases.add(tc);
 
         tc = new TestCase();
@@ -89,7 +89,7 @@ public class Test1 {
         tc.outFile = "/tmp/owl1_modif.png";
         tc.format = "png";
         tc.secLevel = 1;
-        tc.numReps = 10;
+        tc.numReps = NUM;
         testCases.add(tc);
 
         tc = new TestCase();
@@ -97,7 +97,7 @@ public class Test1 {
         tc.outFile = "/tmp/owl1_modif.png";
         tc.format = "png";
         tc.secLevel = 2;
-        tc.numReps = 10;
+        tc.numReps = NUM;
         testCases.add(tc);
 
         tc = new TestCase();
@@ -135,7 +135,7 @@ public class Test1 {
         tc = new TestCase();
         tc.inFile = RES_DIR + "/Photo1.JPG";
         tc.outFile = "/tmp/Photo1_modif.tif";
-        tc.format = "tif";
+        tc.format = "tiff";
         tc.secLevel = 0;
         tc.numReps = NUM;
         testCases.add(tc);

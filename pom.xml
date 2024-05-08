@@ -6,7 +6,7 @@
 
     <groupId>com.galliumdata.adumbra</groupId>
     <artifactId>adumbra</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
     <description>A simple library to hide data in bitmaps</description>
     <url>https://github.com/galliumdata/adumbra</url>
 
@@ -38,6 +38,11 @@
         <tag>HEAD</tag>
         <url>https://github.com/galliumdata/adumbra</url>
     </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/galliumdata/adumbra/issues</url>
+    </issueManagement>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

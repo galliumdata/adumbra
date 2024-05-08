@@ -36,6 +36,12 @@ public class Encoder {
 
         ImageBitmap bitmap = new ImageBitmap();
         bitmap.readImage(inStream);
+        if (outputFormat == null) {
+            outputFormat = bitmap.format;
+        }
+        if ( ! (outputFormat.equalsIgnoreCase("png") || outputFormat.equalsIgnoreCase("tiff"))) {
+            throw new RuntimeException("Output format can only be png or tiff");
+        }
 
         // Get all the randomness we'll need, since getting this one byte at a time is very expensive.
         SecureRandom rand = SecureRandom.getInstanceStrong();
